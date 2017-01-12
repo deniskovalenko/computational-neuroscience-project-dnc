@@ -19,8 +19,8 @@ from ntm.updates import graves_rmsprop
 from utils.generators import SortTask
 from utils.visualization import Dashboard
 
-memory_N = 20
-memory_M = 10
+memory_N = 256
+memory_M = 40
 def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
@@ -71,17 +71,18 @@ if __name__ == '__main__':
     ntm_layer_fn = theano.function([input_var], lasagne.layers.get_output(l_ntm, get_details=True))
 
     # Training
-    scores, all_scores = [], []
-    for i, (example_input, example_output) in generator:
-        score = train_fn(example_input, example_output)
-        scores.append(score)
-        all_scores.append(score)
-        if i % 500 == 0:
-            mean_scores = np.mean(scores)
-            print 'Batch #%d: %.6f' % (i, mean_scores)
-            scores = []
-        if i == 2000:
-            break
+    try:
+        scores, all_scores = [], []
+        for i, (example_input, example_output) in generator:
+            score = train_fn(example_input, example_output)
+            scores.append(score)
+            all_scores.append(score)
+            if i % 500 == 0:
+                mean_scores = np.mean(scores)
+                print 'Batch #%d: %.6f' % (i, mean_scores)
+                scores = []
+    except KeyboardInterrupt:
+        pass
 
     # Visualization
     markers = [
