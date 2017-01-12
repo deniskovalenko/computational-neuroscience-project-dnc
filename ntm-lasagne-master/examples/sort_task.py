@@ -21,7 +21,7 @@ from utils.visualization import Dashboard
 
 memory_N = 256
 memory_M = 40
-def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
+def model(input_var, batch_size=1, size=8, num_units=300, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
     l_input = InputLayer((batch_size, None, size + 1), input_var=input_var)
@@ -63,7 +63,7 @@ if __name__ == '__main__':
     loss = T.mean(lasagne.objectives.binary_crossentropy(pred_var, target_var))
     # Create the update expressions
     params = lasagne.layers.get_all_params(l_output, trainable=True)
-    updates = graves_rmsprop(loss, params, learning_rate=1e-3)
+    updates = graves_rmsprop(loss, params, learning_rate=1e-4)
     # Compile the function for a training step, as well as the prediction function and
     # a utility function to get the inner details of the NTM
     train_fn = theano.function([input_var, target_var], loss, updates=updates)
@@ -92,6 +92,8 @@ if __name__ == '__main__':
         }
     ]
 
+
+    a = ntm_fn(example_input)
     dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
         memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
 
