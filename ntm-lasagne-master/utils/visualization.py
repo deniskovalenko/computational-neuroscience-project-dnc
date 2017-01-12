@@ -2,6 +2,7 @@ import theano
 import theano.tensor as T
 import numpy as np
 import pandas as pd
+import os
 
 import matplotlib
 if os.environ.get('DISPLAY','') == '':
