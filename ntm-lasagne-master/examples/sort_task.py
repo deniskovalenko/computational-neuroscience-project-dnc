@@ -16,12 +16,11 @@ from ntm.controllers import DenseController
 from ntm.heads import WriteHead, ReadHead
 from ntm.updates import graves_rmsprop
 
-from utils.generators import CopyTask
+from utils.generators import SortTask
 from utils.visualization import Dashboard
 
-memory_N = 128
-memory_M = 5
-def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
+
+def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(128, 20)):
 
     # Input Layer
     l_input = InputLayer((batch_size, None, size + 1), input_var=input_var)
@@ -55,10 +54,10 @@ if __name__ == '__main__':
     # Define the input and expected output variable
     input_var, target_var = T.tensor3s('input', 'target')
     # The generator to sample examples from
-    generator = CopyTask(batch_size=1, max_iter=1000000, size=15, max_length=100, end_marker=True)
+    generator = SortTask(batch_size=1, max_iter=1000000, size=3, max_length=5, end_marker=False)
     # The model (1-layer Neural Turing Machine)
-    l_output, l_ntm = model(input_var, batch_size=generator.batch_size,
-        size=generator.size, num_units=100, memory_shape=(memory_N, memory_M))
+    l_output, l_ntm = model(input_var, batch_size=generator.batch_size, \
+        size=generator.size, num_units=100, memory_shape=(128, 20))
     # The generated output variable and the loss function
     pred_var = T.clip(lasagne.layers.get_output(l_output), 1e-6, 1. - 1e-6)
     loss = T.mean(lasagne.objectives.binary_crossentropy(pred_var, target_var))
@@ -72,18 +71,18 @@ if __name__ == '__main__':
     ntm_layer_fn = theano.function([input_var], lasagne.layers.get_output(l_ntm, get_details=True))
 
     # Training
-    scores, all_scores = [], []
-    for i, (example_input, example_output) in generator:
-        score = train_fn(example_input, example_output)
-        scores.append(score)
-        all_scores.append(score)
-        if i % 500 == 0:
-            mean_scores = np.mean(scores)
-            print 'Batch #%d: %.6f' % (i, mean_scores)
-            scores = []
-        if i == 2000:
-            break
-
+    try:
+        scores, all_scores = [], []
+        for i, (example_input, example_output) in generator:
+            score = train_fn(example_input, example_output)
+            scores.append(score)
+            all_scores.append(score)
+            if i % 500 == 0:
+                mean_scores = np.mean(scores)
+                print 'Batch #%d: %.6f' % (i, mean_scores)
+                scores = []
+    except KeyboardInterrupt:
+        pass
 
     # Visualization
     markers = [
@@ -94,7 +93,7 @@ if __name__ == '__main__':
     ]
 
     dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
-        memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
+        memory_shape=(128, 20), markers=markers, cmap='bone')
 
     # Example
     params = generator.sample_params()

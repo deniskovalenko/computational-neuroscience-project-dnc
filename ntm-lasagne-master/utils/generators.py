@@ -183,6 +183,73 @@ class DynamicNGramsTask(Task):
         return sequence[:,:-1], sequence[:,1:]
 
 
+class SortTask(Task):
+
+    def __init__(self, size, max_length, min_length=1, max_iter=None, \
+        batch_size=1, end_marker=False):
+        super(SortTask, self).__init__(max_iter=max_iter, batch_size=batch_size)
+        self.size = size
+        self.min_length = min_length
+        self.max_length = max_length
+        self.end_marker = end_marker
+
+    def sample_params(self, length=None):
+        if length is None:
+            length = 3# np.random.randint(self.min_length, self.max_length + 1)
+        return {'length': length}
+
+    def sample(self, length):
+        # example_input = np.zeros((1, 3, 3), dtype=theano.config.floatX)
+        # example_input[0, 0, 0] = 1  # np.array([[[1, 0], [0, 1]]])
+        # example_input[0, 0, 1] = 0
+        # example_input[0, 1, 0] = 0
+        # example_input[0, 1, 1] = 1
+        # example_output = np.zeros((1, 3, 3), dtype=theano.config.floatX)
+        # example_output[0, 0, 0] = 0  # np.array([[[1, 0], [0, 1]]])
+        # example_output[0, 0, 1] = 1
+        # example_output[0, 1, 0] = 1
+        # example_output[0, 1, 1] = 0
+
+
+
+        # sequence = np.random.binomial(1, 0.1, (self.batch_size, length, self.size)) #length should be 3, size should be 3?
+        # example_input = np.zeros((self.batch_size, 2 * length, \
+        #     self.size), dtype=theano.config.floatX)
+        # example_output = np.zeros((self.batch_size, 2 * length, \
+        #     self.size), dtype=theano.config.floatX)
+        #
+        # example_input[:, :length, :self.size] = sequence
+        # example_input[:, length, -1] = 1
+        # example_output[:, length + 1:2 * length + 1, :self.size] = sequence
+        # if self.end_marker:
+        #     example_output[:, -1, -1] = 1
+
+
+
+
+        length = 3
+        size = 3
+        batch_size = 1
+        sequence = np.random.binomial(1, 0, (batch_size, length, size))  # length should be 3, size should be 3?
+        sequence[0, 0, 0] = 1
+        sequence[0, 1, 1] = 1
+        sequence[0, 2, 2] = 1
+        example_input = np.zeros((batch_size, 2 * length, \
+                                  size), dtype=theano.config.floatX)
+        example_output = np.zeros((batch_size, 2 * length, \
+                                   size), dtype=theano.config.floatX)
+
+        example_input[:, :length, :size] = sequence
+        # example_input[:, length, -1] = 1
+
+        sequence2 = np.random.binomial(1, 0, (batch_size, length, size))  # length should be 3, size should be 3?
+        sequence2[0, 2, 0] = 1
+        sequence2[0, 1, 1] = 1
+        sequence2[0, 0, 2] = 1
+        example_output[:, length:2 * length, :size] = sequence2
+        return example_input, example_output
+
+
 class DyckWordsTask(Task):
 
     def __init__(self, max_length, min_length=1, max_iter=None, batch_size=1):
