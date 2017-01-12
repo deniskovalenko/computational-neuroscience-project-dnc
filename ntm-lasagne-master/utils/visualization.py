@@ -4,6 +4,10 @@ import numpy as np
 import pandas as pd
 
 import matplotlib
+if os.environ.get('DISPLAY','') == '':
+    print('no display found. Using non-interactive Agg backend')
+    matplotlib.use('Agg')
+#helps to
 import matplotlib.pyplot as plt
 
 class Dashboard(object):
