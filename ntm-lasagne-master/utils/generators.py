@@ -195,12 +195,12 @@ class SortTask(Task):
 
     def sample_params(self, length=None):
         if length is None:
-            length = 3# np.random.randint(self.min_length, self.max_length + 1)
+            length = np.random.randint(self.min_length, self.max_length + 1)
         return {'length': length}
 
     def sample(self, length):
-        input = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
-                                  self.size + 1), dtype=theano.config.floatX)
+        input = np.zeros((self.batch_size, length,
+                                  self.size), dtype=theano.config.floatX)
         # print example_input
         # print example_input[:, :, 0].shape[1]
         # iterate through each column of example_input
@@ -211,8 +211,8 @@ class SortTask(Task):
         # print example_input
 
         copied_cols = 0
-        output = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
-                                   self.size + 1), dtype=theano.config.floatX)
+        output = np.zeros((self.batch_size,length,
+                                   self.size), dtype=theano.config.floatX)
         # print example_output
         for row in range(0, input[:, :, 0].shape[1]):
             # print example_output
@@ -250,13 +250,13 @@ class SortTask(Task):
         # sequence2[0, 0, 2] = 1
         # example_output[:, length + 1:2 * length + 1, :size] = sequence2
 
-        example_output = np.zeros((self.batch_size, (2 * length + 1 + self.end_marker) * 2 + 1,
-                  self.size  + 2))
-        example_input = np.zeros((self.batch_size, (2 * length + 1 + self.end_marker) * 2 + 1,
-                                   self.size + 2))
+        example_input = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
+                                  self.size + 1), dtype=theano.config.floatX)
+        example_output = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
+                                   self.size + 1), dtype=theano.config.floatX)
 
-        example_input[:, :(2 * length + 1 + self.end_marker), :self.size+1] = input
-        example_output[:, (2 * length + 1 + self.end_marker) + 1:(2 * length + 1 + self.end_marker) * 2 + 2, :self.size+1] = output
+        example_input[:, :length, :self.size] = input
+        example_output[:, length + 1:2 * length + 1, :self.size] = output
         return example_input, example_output
 
 class DyckWordsTask(Task):

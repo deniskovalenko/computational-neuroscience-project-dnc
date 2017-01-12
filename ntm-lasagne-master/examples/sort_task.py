@@ -19,8 +19,9 @@ from ntm.updates import graves_rmsprop
 from utils.generators import SortTask
 from utils.visualization import Dashboard
 
-
-def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(128, 20)):
+memory_N = 20
+memory_M = 10
+def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
     l_input = InputLayer((batch_size, None, size + 1), input_var=input_var)
@@ -49,15 +50,14 @@ def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(128, 20)
 
     return l_output, l_ntm
 
-
 if __name__ == '__main__':
     # Define the input and expected output variable
     input_var, target_var = T.tensor3s('input', 'target')
     # The generator to sample examples from
-    generator = SortTask(batch_size=1, max_iter=1000000, size=3, max_length=5, end_marker=False)
+    generator = SortTask(batch_size=1, max_iter=1000000, size=100, max_length=30, end_marker=False)
     # The model (1-layer Neural Turing Machine)
     l_output, l_ntm = model(input_var, batch_size=generator.batch_size, \
-        size=generator.size, num_units=100, memory_shape=(128, 20))
+        size=generator.size, num_units=100, memory_shape=(memory_N, memory_M))
     # The generated output variable and the loss function
     pred_var = T.clip(lasagne.layers.get_output(l_output), 1e-6, 1. - 1e-6)
     loss = T.mean(lasagne.objectives.binary_crossentropy(pred_var, target_var))
@@ -92,7 +92,7 @@ if __name__ == '__main__':
     ]
 
     dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
-        memory_shape=(128, 20), markers=markers, cmap='bone')
+        memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
 
     # Example
     params = generator.sample_params()
