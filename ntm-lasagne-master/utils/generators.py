@@ -1,6 +1,6 @@
 import theano
 import numpy as np
-
+import random
 
 class Task(object):
 
@@ -159,7 +159,7 @@ class DynamicNGramsTask(Task):
         self.table = table
         self.max_length = max(ngrams, max_length)
         self.min_length = min_length
-        
+
     def make_table(self):
         return np.random.beta(0.5, 0.5, 1 << self.ngrams)
 
@@ -199,38 +199,65 @@ class SortTask(Task):
         return {'length': length}
 
     def sample(self, length):
-        # sequence = np.random.binomial(1, 0.5, (self.batch_size, length, self.size))
-        # example_input = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
-        #                           self.size + 1), dtype=theano.config.floatX)
-        # example_output = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
-        #                            self.size + 1), dtype=theano.config.floatX)
+        input = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
+                                  self.size + 1), dtype=theano.config.floatX)
+        # print example_input
+        # print example_input[:, :, 0].shape[1]
+        # iterate through each column of example_input
+        for col in range(0, input[:, 0, :].shape[1]):
+            loc = random.randint(0, input[:, :, col].shape[1] - 1)
+            input[:, loc, col] = 1
+        # print "---"
+        # print example_input
+
+        copied_cols = 0
+        output = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
+                                   self.size + 1), dtype=theano.config.floatX)
+        # print example_output
+        for row in range(0, input[:, :, 0].shape[1]):
+            # print example_output
+            no_of_cols = np.nonzero(input[0, row, :])[0].shape[0]
+            # print copied_cols,no_of_cols
+            # print np.nonzero(example_input[0,row,:])
+            # print example_output[:,:,copied_cols:copied_cols+no_of_cols][0]
+            # print example_input[:,:,np.nonzero(example_input[0,row,:])[0]][0]
+            # print example_input[:,:,np.nonzero(example_input[0,row,:])]
+            output[:, :, copied_cols:copied_cols + no_of_cols][0] = \
+                input[:, :, np.nonzero(input[0, row, :])[0]][0]
+            copied_cols = copied_cols + no_of_cols
+            # print copied_cols
+            # print example_output[:, :, copied_cols:copied_cols+no_of_cols]
+        # print example_output
+
+        # length = 3
+        # size = 3
+        # batch_size = 1
+        # sequence = np.random.binomial(1, 0, (batch_size, length, size))  # length should be 3, size should be 3?
+        # sequence[0, 0, 0] = 1
+        # sequence[0, 1, 1] = 1
+        # sequence[0, 2, 2] = 1
+        # example_input = np.zeros((batch_size, 2 * length + 1, \
+        #                           size + 1), dtype=theano.config.floatX)
+        # example_output = np.zeros((batch_size, 2 * length + 1, \
+        #                            size + 1), dtype=theano.config.floatX)
         #
-        # example_input[:, :length, :self.size] = sequence
-        # example_input[:, length, -1] = 1
-        # example_output[:, length + 1:2 * length + 1, :self.size] = sequence
+        # example_input[:, :length, :size] = sequence
+        # # example_input[:, length, -1] = 1
+        #
+        # sequence2 = np.random.binomial(1, 0, (batch_size, length, size))  # length should be 3, size should be 3?
+        # sequence2[0, 2, 0] = 1
+        # sequence2[0, 1, 1] = 1
+        # sequence2[0, 0, 2] = 1
+        # example_output[:, length + 1:2 * length + 1, :size] = sequence2
 
-        length = 3
-        size = 3
-        batch_size = 1
-        sequence = np.random.binomial(1, 0, (batch_size, length, size))  # length should be 3, size should be 3?
-        sequence[0, 0, 0] = 1
-        sequence[0, 1, 1] = 1
-        sequence[0, 2, 2] = 1
-        example_input = np.zeros((batch_size, 2 * length + 1, \
-                                  size + 1), dtype=theano.config.floatX)
-        example_output = np.zeros((batch_size, 2 * length + 1, \
-                                   size + 1), dtype=theano.config.floatX)
+        example_output = np.zeros((self.batch_size, (2 * length + 1 + self.end_marker) * 2 + 1,
+                  self.size  + 2))
+        example_input = np.zeros((self.batch_size, (2 * length + 1 + self.end_marker) * 2 + 1,
+                                   self.size + 2))
 
-        example_input[:, :length, :size] = sequence
-        # example_input[:, length, -1] = 1
-
-        sequence2 = np.random.binomial(1, 0, (batch_size, length, size))  # length should be 3, size should be 3?
-        sequence2[0, 2, 0] = 1
-        sequence2[0, 1, 1] = 1
-        sequence2[0, 0, 2] = 1
-        example_output[:, length + 1:2 * length + 1, :size] = sequence2
+        example_input[:, :(2 * length + 1 + self.end_marker), :self.size+1] = input
+        example_output[:, (2 * length + 1 + self.end_marker) + 1:(2 * length + 1 + self.end_marker) * 2 + 2, :self.size+1] = output
         return example_input, example_output
-
 
 class DyckWordsTask(Task):
 
