@@ -71,18 +71,17 @@ if __name__ == '__main__':
     ntm_layer_fn = theano.function([input_var], lasagne.layers.get_output(l_ntm, get_details=True))
 
     # Training
-    try:
-        scores, all_scores = [], []
-        for i, (example_input, example_output) in generator:
-            score = train_fn(example_input, example_output)
-            scores.append(score)
-            all_scores.append(score)
-            if i % 500 == 0:
-                mean_scores = np.mean(scores)
-                print 'Batch #%d: %.6f' % (i, mean_scores)
-                scores = []
-    except KeyboardInterrupt:
-        pass
+    scores, all_scores = [], []
+    for i, (example_input, example_output) in generator:
+        score = train_fn(example_input, example_output)
+        scores.append(score)
+        all_scores.append(score)
+        if i % 500 == 0:
+            mean_scores = np.mean(scores)
+            print 'Batch #%d: %.6f' % (i, mean_scores)
+            scores = []
+        if i == 2000:
+            break
 
     # Visualization
     markers = [

@@ -199,33 +199,15 @@ class SortTask(Task):
         return {'length': length}
 
     def sample(self, length):
-        # example_input = np.zeros((1, 3, 3), dtype=theano.config.floatX)
-        # example_input[0, 0, 0] = 1  # np.array([[[1, 0], [0, 1]]])
-        # example_input[0, 0, 1] = 0
-        # example_input[0, 1, 0] = 0
-        # example_input[0, 1, 1] = 1
-        # example_output = np.zeros((1, 3, 3), dtype=theano.config.floatX)
-        # example_output[0, 0, 0] = 0  # np.array([[[1, 0], [0, 1]]])
-        # example_output[0, 0, 1] = 1
-        # example_output[0, 1, 0] = 1
-        # example_output[0, 1, 1] = 0
-
-
-
-        # sequence = np.random.binomial(1, 0.1, (self.batch_size, length, self.size)) #length should be 3, size should be 3?
-        # example_input = np.zeros((self.batch_size, 2 * length, \
-        #     self.size), dtype=theano.config.floatX)
-        # example_output = np.zeros((self.batch_size, 2 * length, \
-        #     self.size), dtype=theano.config.floatX)
+        # sequence = np.random.binomial(1, 0.5, (self.batch_size, length, self.size))
+        # example_input = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
+        #                           self.size + 1), dtype=theano.config.floatX)
+        # example_output = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
+        #                            self.size + 1), dtype=theano.config.floatX)
         #
         # example_input[:, :length, :self.size] = sequence
         # example_input[:, length, -1] = 1
         # example_output[:, length + 1:2 * length + 1, :self.size] = sequence
-        # if self.end_marker:
-        #     example_output[:, -1, -1] = 1
-
-
-
 
         length = 3
         size = 3
@@ -234,10 +216,10 @@ class SortTask(Task):
         sequence[0, 0, 0] = 1
         sequence[0, 1, 1] = 1
         sequence[0, 2, 2] = 1
-        example_input = np.zeros((batch_size, 2 * length, \
-                                  size), dtype=theano.config.floatX)
-        example_output = np.zeros((batch_size, 2 * length, \
-                                   size), dtype=theano.config.floatX)
+        example_input = np.zeros((batch_size, 2 * length + 1, \
+                                  size + 1), dtype=theano.config.floatX)
+        example_output = np.zeros((batch_size, 2 * length + 1, \
+                                   size + 1), dtype=theano.config.floatX)
 
         example_input[:, :length, :size] = sequence
         # example_input[:, length, -1] = 1
@@ -246,7 +228,7 @@ class SortTask(Task):
         sequence2[0, 2, 0] = 1
         sequence2[0, 1, 1] = 1
         sequence2[0, 0, 2] = 1
-        example_output[:, length:2 * length, :size] = sequence2
+        example_output[:, length + 1:2 * length + 1, :size] = sequence2
         return example_input, example_output
 
 
