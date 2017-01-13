@@ -20,8 +20,8 @@ from ntm.updates import graves_rmsprop
 from utils.generators import SortTask
 from utils.visualization import Dashboard
 
-memory_N = 256
-memory_M = 128
+memory_N = 128
+memory_M = 10
 def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Define the input and expected output variable
     input_var, target_var = T.tensor3s('input', 'target')
     # The generator to sample examples from
-    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=1000, end_marker=False)
+    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=100, end_marker=False)
     # The model (1-layer Neural Turing Machine)
     l_output, l_ntm = model(input_var, batch_size=generator.batch_size, \
         size=generator.size, num_units=100, memory_shape=(memory_N, memory_M))
