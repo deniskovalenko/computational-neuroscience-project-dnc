@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Define the input and expected output variable
     input_var, target_var = T.tensor3s('input', 'target')
     # The generator to sample examples from
-    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=50, end_marker=False)
+    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=50000, end_marker=False)
     # The model (1-layer Neural Turing Machine)
     l_output, l_ntm = model(input_var, batch_size=generator.batch_size, \
         size=generator.size, num_units=100, memory_shape=(memory_N, memory_M))
@@ -109,10 +109,10 @@ if __name__ == '__main__':
         print str(i) + "," + str(time_to_run)
 
 
-    #
-    # dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
-    #     memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
-    #
-    # # Example
-    # params = generator.sample_params()
-    # dashboard.sample(**params)
+
+    dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
+        memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
+
+    # Example
+    params = generator.sample_params()
+    dashboard.sample(**params)
