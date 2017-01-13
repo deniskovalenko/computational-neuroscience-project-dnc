@@ -21,7 +21,7 @@ from utils.generators import SortTask
 from utils.visualization import Dashboard
 
 memory_N = 512
-memory_M = 100
+memory_M = 512
 def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Define the input and expected output variable
     input_var, target_var = T.tensor3s('input', 'target')
     # The generator to sample examples from
-    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=50000, end_marker=False)
+    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=5000, end_marker=False)
     # The model (1-layer Neural Turing Machine)
     l_output, l_ntm = model(input_var, batch_size=generator.batch_size, \
         size=generator.size, num_units=100, memory_shape=(memory_N, memory_M))
@@ -99,7 +99,7 @@ if __name__ == '__main__':
             yield start
             start *= step
 
-    for i in my_range(1, 50000, 5):
+    for i in my_range(1, 5000, 5):
 
         example_input, ex_output = generator.sample(i)
         start_time = time.time()
