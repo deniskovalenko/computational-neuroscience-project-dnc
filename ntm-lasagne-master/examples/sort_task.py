@@ -2,6 +2,7 @@ import theano
 import theano.tensor as T
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 from lasagne.layers import InputLayer, DenseLayer, ReshapeLayer
 import lasagne.layers
@@ -19,8 +20,8 @@ from ntm.updates import graves_rmsprop
 from utils.generators import SortTask
 from utils.visualization import Dashboard
 
-memory_N = 256
-memory_M = 40
+memory_N = 2048
+memory_M = 200
 def model(input_var, batch_size=1, size=8, num_units=300, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     loss = T.mean(lasagne.objectives.binary_crossentropy(pred_var, target_var))
     # Create the update expressions
     params = lasagne.layers.get_all_params(l_output, trainable=True)
-    updates = graves_rmsprop(loss, params, learning_rate=1e-4)
+    updates = graves_rmsprop(loss, params, learning_rate=1e-3)
     # Compile the function for a training step, as well as the prediction function and
     # a utility function to get the inner details of the NTM
     train_fn = theano.function([input_var, target_var], loss, updates=updates)
@@ -93,10 +94,26 @@ if __name__ == '__main__':
     ]
 
 
-    a = ntm_fn(example_input)
-    dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
-        memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
+    def my_range(start, end, step):
+        while start <= end:
+            yield start
+            start += step
 
-    # Example
-    params = generator.sample_params()
-    dashboard.sample(**params)
+    for i in my_range(3, 3000, 5):
+        params = {'length': i}
+        generator = SortTask(batch_size=1, max_iter=1000000, size=i, max_length=30, end_marker=False)
+        example_input, ex_output = generator.sample(i)
+        start_time = time.time()
+        a = ntm_fn(example_input)
+        end_time = time.time()
+        time_to_run = end_time - start_time
+        print(i + "," + time_to_run)
+
+
+    #
+    # dashboard = Dashboard(generator=generator, ntm_fn=ntm_fn, ntm_layer_fn=ntm_layer_fn, \
+    #     memory_shape=(memory_N, memory_M), markers=markers, cmap='bone')
+    #
+    # # Example
+    # params = generator.sample_params()
+    # dashboard.sample(**params)

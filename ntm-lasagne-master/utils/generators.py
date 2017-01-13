@@ -195,7 +195,7 @@ class SortTask(Task):
 
     def sample_params(self, length=None):
         if length is None:
-            length = np.random.randint(self.min_length, self.max_length + 1)
+            length = self.max_length#np.random.randint(self.min_length, self.max_length + 1)
         return {'length': length}
 
     def sample(self, length):
