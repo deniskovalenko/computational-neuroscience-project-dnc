@@ -1,6 +1,7 @@
 import generators
 
 if __name__ == '__main__':
+    print str(3) +" " + str(0.3)
     generator = generators.SortTask(batch_size=1, max_iter=1, size=3, max_length=5, end_marker=False)
     generator.sample(3)
 

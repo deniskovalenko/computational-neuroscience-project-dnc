@@ -195,12 +195,12 @@ class SortTask(Task):
 
     def sample_params(self, length=None):
         if length is None:
-            length = self.max_length#np.random.randint(self.min_length, self.max_length + 1)
+            length = np.random.randint(self.min_length, self.max_length + 1)
         return {'length': length}
 
     def sample(self, length):
-        input = np.zeros((self.batch_size, length,
-                                  self.size), dtype=theano.config.floatX)
+        input = np.zeros((self.batch_size, self.size,
+                                  length), dtype=theano.config.floatX)
         # print example_input
         # print example_input[:, :, 0].shape[1]
         # iterate through each column of example_input
@@ -211,8 +211,8 @@ class SortTask(Task):
         # print example_input
 
         copied_cols = 0
-        output = np.zeros((self.batch_size,length,
-                                   self.size), dtype=theano.config.floatX)
+        output = np.zeros((self.batch_size, self.size,
+                          length), dtype=theano.config.floatX)
         # print example_output
         for row in range(0, input[:, :, 0].shape[1]):
             # print example_output
@@ -254,9 +254,14 @@ class SortTask(Task):
                                   self.size + 1), dtype=theano.config.floatX)
         example_output = np.zeros((self.batch_size, 2 * length + 1 + self.end_marker, \
                                    self.size + 1), dtype=theano.config.floatX)
-
-        example_input[:, :length, :self.size] = input
-        example_output[:, length + 1:2 * length + 1, :self.size] = output
+        inputT = input[0].transpose()
+        tmp1 = np.zeros((self.batch_size, inputT.shape[0], inputT.shape[1]))
+        tmp1[:,:inputT.shape[0],:inputT.shape[1]] = inputT
+        example_input[:, :length, :self.size] = tmp1
+        outputT = output[0].transpose()
+        tmp2 = np.zeros((self.batch_size, outputT.shape[0], outputT.shape[1]))
+        tmp2[:, :outputT.shape[0], :outputT.shape[1]] = outputT
+        example_output[:, length :2 * length , :self.size] = tmp2
         return example_input, example_output
 
 class DyckWordsTask(Task):

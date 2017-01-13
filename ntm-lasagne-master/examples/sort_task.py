@@ -20,9 +20,9 @@ from ntm.updates import graves_rmsprop
 from utils.generators import SortTask
 from utils.visualization import Dashboard
 
-memory_N = 2048
-memory_M = 200
-def model(input_var, batch_size=1, size=8, num_units=300, memory_shape=(memory_N, memory_M)):
+memory_N = 512
+memory_M = 100
+def model(input_var, batch_size=1, size=8, num_units=100, memory_shape=(memory_N, memory_M)):
 
     # Input Layer
     l_input = InputLayer((batch_size, None, size + 1), input_var=input_var)
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Define the input and expected output variable
     input_var, target_var = T.tensor3s('input', 'target')
     # The generator to sample examples from
-    generator = SortTask(batch_size=1, max_iter=1000000, size=100, max_length=30, end_marker=False)
+    generator = SortTask(batch_size=1, max_iter=1000000, size=20, max_length=50, end_marker=False)
     # The model (1-layer Neural Turing Machine)
     l_output, l_ntm = model(input_var, batch_size=generator.batch_size, \
         size=generator.size, num_units=100, memory_shape=(memory_N, memory_M))
@@ -97,17 +97,16 @@ if __name__ == '__main__':
     def my_range(start, end, step):
         while start <= end:
             yield start
-            start += step
+            start *= step
 
-    for i in my_range(3, 3000, 5):
-        params = {'length': i}
-        generator = SortTask(batch_size=1, max_iter=1000000, size=i, max_length=30, end_marker=False)
+    for i in my_range(1, 50000, 5):
+
         example_input, ex_output = generator.sample(i)
         start_time = time.time()
         a = ntm_fn(example_input)
         end_time = time.time()
         time_to_run = end_time - start_time
-        print(i + "," + time_to_run)
+        print str(i) + "," + str(time_to_run)
 
 
     #
